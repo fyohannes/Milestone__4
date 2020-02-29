@@ -1,0 +1,114 @@
+---
+title: "Milestone 4"
+author: "Feven Yohannes"
+date: "2/28/2020"
+output: bookdown::pdf_document2
+#output: html_document
+bibliography: bib.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::write_bib(c("knitr", "stringr"), "bib.bib", width = 60)
+```
+
+```{r}
+library(bookdown)
+library(tinytex)
+library(gtable)
+library(stargazer)
+library(dplyr)
+library(gt)
+library(janitor)
+library(tidyverse)
+```
+ 
+For this milstone, I am using data from Enos' train data from problem set 4.
+
+#Dowload the data
+```{r, warning= FALSE}
+data <- read_csv("pnas_data.csv",
+                 col_types = cols(
+  .default = col_double(),
+  treated_unit = col_character(),
+  t.time = col_character(),
+  assignment = col_character(),
+  line.y = col_character(),
+  station = col_character(),
+  train = col_character(),
+  time = col_time(format = ""),
+  time.treatment = col_character()
+))
+```
+
+
+```{r}
+#Using the clean data from problem set 4
+
+data <- data %>%
+  clean_names() %>%
+
+#I used clean names so it would be easier to refer to the column names
+  
+select("numberim_x","remain_x","englishlan_x","numberim_y","remain_y","englishlan_y",
+       "income_new","liberal","republican","age","male","treatment") %>%
+
+#Selecting for the varibales that I will need to use 
+  
+mutate(att_start = numberim_x + remain_x + englishlan_x) %>%
+
+#I created the variable att_start
+  
+mutate(att_end = numberim_y + remain_y + englishlan_y) %>%
+
+#I created the variable att_end
+  
+mutate(att_chg = att_end - att_start) %>%
+
+#I created the variable att_end
+
+drop_na(att_chg) %>%
+ 
+#I dropped the NA's.
+  
+rename(income = income_new)
+
+#I renamed income_new to income.
+```
+
+Making the gt table 
+```{r, include=FALSE,echo=FALSE}
+table <- data %>% 
+    select("liberal","age","income","treatment","att_chg") %>%
+   gt() %>%
+  tab_header(
+    title = "Sentiments towards Spanish speakers",
+    subtitle = "Does Exposure to Spanish speakers lead to more exclusionary patterns"
+  ) %>%
+  tab_footnote(footnote = "More positive values signal more exclusionary patterns", locations = cells_column_labels(columns = vars(att_chg))) %>%
+   tab_footnote(footnote = "1 means that the individual did recieve the treatment", locations = cells_column_labels(columns = vars(treatment))) %>%
+  cols_label(
+    treatment = "Treated Unit",
+    att_chg = "Attitude Change",
+    age = "Age",
+    income = "Income") %>%
+  tab_source_note(
+    source_note = md("Enos', Causal Effect of Intergroup Contact on Exclusionary Attitudes")
+  )
+
+table
+```
+
+Creating a couple of regressions
+```{r,echo=FALSE}
+line1 <- lm(att_chg ~ treatment, data = data )
+line2 <- lm(att_chg ~ treatment + age +income, data = data )
+```
+
+Using stargazer on my regressions
+```{r,warning=FALSE,results="asis"}
+stargazer(line1, line2, header = FALSE,
+          dep.var.labels=c("att_chg"),
+          covariate.labels=c("treatment", "age"))
+```
+
