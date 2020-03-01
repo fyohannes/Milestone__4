@@ -1,10 +1,8 @@
 ---
 title: "Milestone 4"
 author: "Feven Yohannes"
-date: "2/28/2020"
-output: bookdown::pdf_document2
-#output: html_document
-bibliography: bib.bib
+date: "February 28, 2020"
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
@@ -12,21 +10,23 @@ knitr::opts_chunk$set(echo = FALSE)
 knitr::write_bib(c("knitr", "stringr"), "bib.bib", width = 60)
 ```
 
-```{r}
+```{r, message=FALSE}
 library(bookdown)
-library(tinytex)
 library(gtable)
 library(stargazer)
 library(dplyr)
 library(gt)
 library(janitor)
 library(tidyverse)
+library(tinytex)
 ```
  
 For this milstone, I am using data from Enos' train data from problem set 4.
 
 #Dowload the data
-```{r, warning= FALSE}
+```{r, warning= FALSE,options(tinytex.verbose = TRUE)}
+#Download the data
+
 data <- read_csv("pnas_data.csv",
                  col_types = cols(
   .default = col_double(),
@@ -77,7 +77,7 @@ rename(income = income_new)
 ```
 
 Making the gt table 
-```{r, include=FALSE,echo=FALSE}
+```{r,echo=FALSE}
 table <- data %>% 
     select("liberal","age","income","treatment","att_chg") %>%
    gt() %>%
@@ -99,7 +99,6 @@ table <- data %>%
 table
 ```
 
-Creating a couple of regressions
 ```{r,echo=FALSE}
 line1 <- lm(att_chg ~ treatment, data = data )
 line2 <- lm(att_chg ~ treatment + age +income, data = data )
@@ -107,8 +106,21 @@ line2 <- lm(att_chg ~ treatment + age +income, data = data )
 
 Using stargazer on my regressions
 ```{r,warning=FALSE,results="asis"}
+#Stargazer isn't coming up on my html
+
 stargazer(line1, line2, header = FALSE,
           dep.var.labels=c("att_chg"),
           covariate.labels=c("treatment", "age"))
 ```
 
+References
+
+@Manual{R-base,
+  title = {R: A Language and Environment for Statistical
+    Computing},
+  author = {{R Core Team}},
+  organization = {R Foundation for Statistical Computing},
+  address = {Vienna, Austria},
+  year = {2017},
+  url = {https://www.R-project.org/},
+}
