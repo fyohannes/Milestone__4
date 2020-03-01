@@ -21,9 +21,9 @@ library(tidyverse)
 library(tinytex)
 ```
  
-For this milstone, I am using data from Enos' train data from problem set 4.
+For this milstone, I am using data from Enos' train data from problem set 4.You can find a link to my repo here: 
+https://github.com/fyohannes/Milestone__4/blob/master/Milestone%204.Rmd
 
-#Dowload the data
 ```{r, warning= FALSE,options(tinytex.verbose = TRUE)}
 #Download the data
 
